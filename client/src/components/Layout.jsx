@@ -1,16 +1,16 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-    ShieldCheck, LogOut, User, FileText, Users,
-    LayoutDashboard, Menu, X, Lock, Activity,
+    Leaf, LogOut, User, FileText, Users,
+    LayoutDashboard, Menu, X, Lock, Heart,
     ChevronRight
 } from 'lucide-react';
 import { useState } from 'react';
 
 const roleConfig = {
-    admin: { color: 'from-purple-500 to-indigo-600', bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500' },
-    doctor: { color: 'from-teal-500 to-emerald-600', bg: 'bg-teal-100', text: 'text-teal-700', dot: 'bg-teal-500' },
-    patient: { color: 'from-sky-500 to-blue-600', bg: 'bg-sky-100', text: 'text-sky-700', dot: 'bg-sky-500' },
+    admin: { color: 'from-amber-600 to-amber-700', bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-600' },
+    doctor: { color: 'from-[#617050] to-[#7a8b66]', bg: 'bg-[#e8ebe3]', text: 'text-[#4d5940]', dot: 'bg-[#617050]' },
+    patient: { color: 'from-[#94a37e] to-[#b3bea3]', bg: 'bg-[#f0ece4]', text: 'text-[#5a564e]', dot: 'bg-[#94a37e]' },
 };
 
 export default function Layout({ children }) {
@@ -20,10 +20,7 @@ export default function Layout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const rc = roleConfig[user?.role] || roleConfig.patient;
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+    const handleLogout = () => { logout(); navigate('/login'); };
 
     const navItems = [
         { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'doctor', 'patient'] },
@@ -34,59 +31,41 @@ export default function Layout({ children }) {
     const filteredNav = navItems.filter(item => item.roles.includes(user?.role));
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50/20 to-sky-50/10 dot-grid">
-            {/* Top Navbar */}
-            <header className="glass sticky top-0 z-50 border-b border-white/20 animate-fade-in">
+        <div className="min-h-screen bg-gradient-to-br from-[#faf8f4] via-[#f5f0e8] to-[#f0ece4] grain">
+            {/* Navbar */}
+            <header className="glass sticky top-0 z-50 border-b border-[#e0d8cc]/40 animate-fade-in">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
-                        {/* Hamburger + Logo */}
                         <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => setSidebarOpen(!sidebarOpen)}
-                                className="lg:hidden p-2 rounded-xl hover:bg-teal-50 active:scale-95"
-                            >
-                                {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 rounded-xl hover:bg-[#f0ece4] active:scale-95">
+                                {sidebarOpen ? <X size={20} className="text-[#5a564e]" /> : <Menu size={20} className="text-[#5a564e]" />}
                             </button>
                             <Link to="/dashboard" className="flex items-center gap-3 group">
-                                <div className={`w-10 h-10 bg-gradient-to-br ${rc.color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-transform`}>
-                                    <ShieldCheck size={22} className="text-white" />
+                                <div className={`w-10 h-10 bg-gradient-to-br ${rc.color} rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 group-hover:rotate-3 transition-transform`}>
+                                    <Leaf size={20} className="text-white" />
                                 </div>
-                                <div className="hidden sm:block">
-                                    <span className="text-lg font-extrabold text-slate-800">
-                                        Aegis <span className="text-gradient">Medical</span>
-                                    </span>
-                                </div>
+                                <span className="text-lg font-extrabold text-[#3d3a35] hidden sm:block">
+                                    Aegis <span className="text-gradient">Medical</span>
+                                </span>
                             </Link>
                         </div>
 
-                        {/* Right side */}
                         <div className="flex items-center gap-3">
-                            {/* Activity indicator */}
-                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold">
-                                <Activity size={12} className="animate-pulse" />
-                                Secured
+                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#e8ebe3]/60 text-[#617050] text-xs font-semibold">
+                                <Heart size={12} className="animate-breathe" />
+                                Active
                             </div>
-
-                            {/* Role badge */}
                             <div className={`px-3 py-1.5 rounded-xl ${rc.bg} ${rc.text} text-xs font-bold flex items-center gap-1.5`}>
                                 <div className={`w-1.5 h-1.5 rounded-full ${rc.dot}`} />
-                                {user?.role?.toUpperCase()}
+                                {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)}
                             </div>
-
-                            {/* User */}
-                            <div className="hidden sm:flex items-center gap-2 text-sm text-slate-600 px-3 py-1.5 rounded-xl hover:bg-slate-50">
-                                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-100 to-sky-100 flex items-center justify-center">
-                                    <User size={14} className="text-teal-600" />
+                            <div className="hidden sm:flex items-center gap-2 text-sm text-[#5a564e] px-3 py-1.5 rounded-xl hover:bg-[#f0ece4]">
+                                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#e8ebe3] to-[#d1d7c7] flex items-center justify-center">
+                                    <User size={14} className="text-[#617050]" />
                                 </div>
                                 <span className="font-medium">{user?.username}</span>
                             </div>
-
-                            {/* Logout */}
-                            <button
-                                onClick={handleLogout}
-                                className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 active:scale-95"
-                                title="Logout"
-                            >
+                            <button onClick={handleLogout} className="p-2.5 rounded-xl text-[#a09888] hover:text-[#d46a6a] hover:bg-red-50 active:scale-95" title="Logout">
                                 <LogOut size={18} />
                             </button>
                         </div>
@@ -98,7 +77,7 @@ export default function Layout({ children }) {
                 {/* Sidebar */}
                 <aside className={`
           fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-72 z-40
-          glass border-r border-white/20
+          glass border-r border-[#e0d8cc]/30
           transform transition-all duration-300 ease-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
@@ -115,8 +94,8 @@ export default function Layout({ children }) {
                     flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold
                     animate-slide-left group
                     ${active
-                                            ? `bg-gradient-to-r ${rc.color} text-white shadow-lg`
-                                            : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'
+                                            ? `bg-gradient-to-r ${rc.color} text-white shadow-md`
+                                            : 'text-[#8a8478] hover:bg-[#f5f0e8] hover:text-[#5a564e]'
                                         }
                   `}
                                     style={{ animationDelay: `${i * 0.1}s` }}
@@ -129,20 +108,20 @@ export default function Layout({ children }) {
                         })}
                     </nav>
 
-                    {/* Security Info Card */}
+                    {/* Bottom Card */}
                     <div className="absolute bottom-6 left-5 right-5">
-                        <div className="bg-animated-gradient rounded-3xl p-5 text-white shadow-xl animate-fade-in delay-5">
-                            <div className="flex items-center gap-2 mb-3">
-                                <Lock size={16} />
-                                <span className="font-bold text-sm">Security Active</span>
+                        <div className="bg-gradient-to-br from-[#617050] to-[#4d5940] rounded-2xl p-5 text-white shadow-lg animate-fade-in delay-5">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Lock size={14} />
+                                <span className="font-bold text-sm">Data Protected</span>
                             </div>
-                            <p className="text-xs text-white/70 leading-relaxed">
-                                All data encrypted with AES-256-CBC. Records signed with RSA-SHA256 digital signatures.
+                            <p className="text-xs text-white/60 leading-relaxed">
+                                Your health data is encrypted with care using AES-256 & RSA signatures.
                             </p>
                             <div className="flex gap-1 mt-3">
                                 {[1, 2, 3, 4, 5].map(i => (
-                                    <div key={i} className="h-1 flex-1 rounded-full bg-white/30">
-                                        <div className="h-full rounded-full bg-white" style={{ width: '100%' }} />
+                                    <div key={i} className="h-1 flex-1 rounded-full bg-white/20">
+                                        <div className="h-full rounded-full bg-white/60" style={{ width: '100%' }} />
                                     </div>
                                 ))}
                             </div>
@@ -150,19 +129,12 @@ export default function Layout({ children }) {
                     </div>
                 </aside>
 
-                {/* Mobile overlay */}
                 {sidebarOpen && (
-                    <div
-                        className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-30 lg:hidden animate-fade-in"
-                        onClick={() => setSidebarOpen(false)}
-                    />
+                    <div className="fixed inset-0 bg-[#3d3a35]/10 backdrop-blur-sm z-30 lg:hidden animate-fade-in" onClick={() => setSidebarOpen(false)} />
                 )}
 
-                {/* Main Content */}
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-4rem)]">
-                    <div className="max-w-6xl mx-auto">
-                        {children}
-                    </div>
+                    <div className="max-w-6xl mx-auto">{children}</div>
                 </main>
             </div>
         </div>
