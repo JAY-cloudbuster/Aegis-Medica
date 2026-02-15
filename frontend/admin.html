@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Secure System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+
+<button class="back-btn" onclick="goHome()">← Back to Home</button>
+
+<button onclick="admin()">Admin Access</button>
+
+</div>
+
+<script>
+function goHome(){
+  window.location.href="index.html";
+}
+
+function admin(){
+fetch("http://localhost:3000/secure-data",{
+headers:{ "x-role":"admin" }
+})
+.then(r=>r.json())
+.then(alert);
+}
+</script>
+</body>
+</html>

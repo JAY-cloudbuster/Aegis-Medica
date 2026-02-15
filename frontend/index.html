@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <h2>Secure System</h2>
+  <button onclick="go('register.html')">Register</button>
+  <button onclick="go('login.html')">Login</button>
+  <button onclick="go('secure.html')">Secure Data (Admin)</button>
+  <button onclick="go('user-data.html')">User Data (Admin/Mod)</button>
+  <button onclick="go('system-config.html')">System Config (Admin)</button>
+</div>
+
+<script>
+function go(p){ location.href=p; }
+</script>
+</body>
+</html>

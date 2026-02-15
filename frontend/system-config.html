@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Configuration - Secure System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+<button class="back-btn" onclick="goHome()">← Back</button>
+
+<h2>System Configuration</h2>
+<p style="color: #dc2626; font-size: 12px;">⚠️ Admin access only</p>
+<input id="u" placeholder="Username">
+<input id="p" type="password" placeholder="Password">
+<button onclick="access()">Access System Config</button>
+<p id="msg"></p>
+<div id="result" style="display:none; margin-top:20px; padding:15px; background:#f1f5f9; border-radius:8px;">
+  <h3>Encrypted Configuration:</h3>
+  <pre id="encrypted" style="word-wrap:break-word; font-size:12px;"></pre>
+  <h3>Digital Signature:</h3>
+  <pre id="signature" style="word-wrap:break-word; font-size:12px;"></pre>
+  <button onclick="decryptData()" style="margin-top:10px;">Decrypt Config</button>
+  <div id="decrypted" style="display:none; margin-top:10px;"></div>
+</div>
+</div>
+
+<script>
+function goHome(){ location.href="index.html"; }
+
+function access(){
+fetch("http://localhost:3000/api/system-config",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+username:u.value,
+password:p.value
+})
+})
+.then(r=>r.json())
+.then(d=>{
+msg.innerText=d.message;
+if(d.message.includes("granted")){
+  msg.className="success";
+  document.getElementById("result").style.display="block";
+  document.getElementById("encrypted").textContent=d.encryptedData.substring(0,100)+"...";
+  document.getElementById("signature").textContent=d.signature.substring(0,50)+"...";
+  localStorage.setItem("encryptedConfig", d.encryptedData);
+} else {
+  msg.className="error";
+  document.getElementById("result").style.display="none";
+}
+});
+}
+
+function decryptData(){
+const encrypted = localStorage.getItem("encryptedConfig");
+if(!encrypted){
+  alert("No encrypted data found");
+  return;
+}
+
+fetch("http://localhost:3000/api/decrypt-data",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({encryptedData: encrypted})
+})
+.then(r=>r.json())
+.then(d=>{
+if(d.decryptedData){
+  document.getElementById("decrypted").style.display="block";
+  document.getElementById("decrypted").innerHTML="<h4>Decrypted Configuration:</h4><pre style='background:white;padding:10px;border-radius:5px;'>"+JSON.stringify(JSON.parse(d.decryptedData),null,2)+"</pre>";
+}
+});
+}
+</script>
+</body>
+</html>

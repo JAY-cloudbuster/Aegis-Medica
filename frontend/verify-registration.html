@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification - Secure System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container otp-container">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+
+    <h2>Email Verification</h2>
+    <p class="otp-instruction">Please check your email for the verification OTP. Enter the 6-digit code below.</p>
+    <input id="otp" placeholder="000000" maxlength="6" type="text" pattern="[0-9]*" inputmode="numeric">
+    <button onclick="verify()">Verify Email</button>
+    <p id="msg"></p>
+  </div>
+
+  <script>
+    function goHome() { location.href = "index.html"; }
+
+    function verify() {
+      const username = localStorage.getItem("regUser");
+      if (!username) {
+        msg.innerText = "Session expired. Please register again.";
+        msg.className = "error";
+        return;
+      }
+
+      fetch("http://localhost:3000/api/verify-registration", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: username,
+          otp: otp.value
+        })
+      })
+        .then(r => r.json())
+        .then(d => {
+          msg.innerText = d.message;
+          if (d.message.includes("successfully")) {
+            msg.className = "success";
+            localStorage.removeItem("regUser");
+            setTimeout(() => location.href = "login.html", 1500);
+          } else {
+            msg.className = "error";
+          }
+        });
+    }
+  </script>
+</body>
+
+</html>

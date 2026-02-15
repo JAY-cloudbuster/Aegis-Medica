@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Secure System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container dashboard-content">
+<button class="back-btn" onclick="goHome()">← Back</button>
+<h2>Dashboard</h2>
+<p>✅ Authenticated using Email OTP MFA</p>
+<p style="color: #64748b; margin-top: 20px;">Welcome! You have successfully logged in.</p>
+
+<button onclick="getSecureData()" style="margin-top:20px;">Secure Data</button>
+<p id="secureMsg"></p>
+</div>
+
+<script>
+function goHome(){ location.href="index.html"; }
+
+function getSecureData(){
+  const token = localStorage.getItem("sessionToken");
+  if(!token){
+    secureMsg.innerText = "Not authenticated. Please login again.";
+    return;
+  }
+
+  fetch("http://localhost:3000/api/secure-message",{
+    method:"GET",
+    headers:{ "x-session-token": token }
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    secureMsg.innerText = d.message;
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification - Secure System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+<button class="back-btn" onclick="goHome()">← Back</button>
+
+<h2>OTP Verification</h2>
+<input id="otp" placeholder="OTP">
+<button onclick="verify()">Verify</button>
+<p id="msg"></p>
+</div>
+
+<script>
+function goHome(){ location.href="index.html"; }
+
+function verify(){
+fetch("http://localhost:3000/api/verify-otp",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+username:localStorage.getItem("user"),
+otp:otp.value
+})
+})
+.then(r=>r.json())
+.then(d=>{
+msg.innerText=d.message;
+if(d.message.includes("successful")) {
+  // Save session + role for dashboard access control
+  if (d.sessionToken) localStorage.setItem("sessionToken", d.sessionToken);
+  if (d.role) localStorage.setItem("role", d.role);
+  setTimeout(()=>location.href="dashboard.html",500);
+}
+});
+}
+</script>
+</body>
+</html>

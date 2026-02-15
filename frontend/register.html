@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Secure System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+
+    <h2>Register</h2>
+    <input id="u" placeholder="Username">
+    <input id="e" placeholder="Email">
+    <input id="p" type="password" placeholder="Password">
+    <input id="cp" type="password" placeholder="Confirm Password">
+
+    <select id="r">
+      <option value="">Select Role</option>
+      <option value="user">User</option>
+      <option value="moderator">Moderator</option>
+      <option value="admin">Admin</option>
+    </select>
+
+    <button onclick="register()">Register</button>
+    <p id="msg"></p>
+  </div>
+
+  <script>
+    function goHome() { location.href = "index.html"; }
+
+    function validEmail(x) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x); }
+    function validPassword(x) { return x.length >= 6 && /[^A-Za-z0-9]/.test(x); }
+
+    function register() {
+      if (!validEmail(e.value)) {
+        msg.innerText = "Invalid email";
+        msg.className = "error";
+        return;
+      }
+      if (!validPassword(p.value)) {
+        msg.innerText = "Weak password";
+        msg.className = "error";
+        return;
+      }
+      if (p.value !== cp.value) {
+        msg.innerText = "Passwords mismatch";
+        msg.className = "error";
+        return;
+      }
+      if (!r.value) {
+        msg.innerText = "Please select a role";
+        msg.className = "error";
+        return;
+      }
+
+      fetch("http://localhost:3000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: u.value,
+          email: e.value,
+          password: p.value,
+          role: r.value
+        })
+      }).then(r => r.json()).then(d => {
+        msg.innerText = d.message;
+        if (d.message.includes("successful")) {
+          msg.className = "success";
+          setTimeout(() => location.href = "login.html", 1500);
+        } else {
+          msg.className = "error";
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

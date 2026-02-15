@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Secure System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+
+    <h2>Login</h2>
+    <input id="u" placeholder="Username">
+    <input id="p" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p id="msg"></p>
+  </div>
+
+  <script>
+    function goHome() { location.href = "index.html"; }
+
+    function login() {
+      const username = document.getElementById('u').value;
+      const password = document.getElementById('p').value;
+      const msgEl = document.getElementById('msg');
+
+      if (!username || !password) {
+        msgEl.innerText = "Please enter username and password";
+        msgEl.className = "error";
+        return;
+      }
+
+      msgEl.innerText = "Logging in...";
+      msgEl.className = "";
+
+      fetch("http://localhost:3000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username, password: password })
+      })
+        .then(r => r.json())
+        .then(d => {
+          console.log("Login response:", d);
+          msgEl.innerText = d.message;
+
+          // Check if OTP was sent - redirect to OTP page
+          if (d.message && d.message.toLowerCase().includes("otp")) {
+            msgEl.className = "success";
+            localStorage.setItem("user", username);
+            msgEl.innerText = d.message + " Redirecting to OTP page...";
+            setTimeout(() => {
+              window.location.href = "otp.html";
+            }, 1000);
+          } else {
+            msgEl.className = "error";
+          }
+        })
+        .catch(err => {
+          console.error("Login error:", err);
+          msgEl.innerText = "Connection error. Make sure server is running.";
+          msgEl.className = "error";
+        });
+    }
+  </script>
+</body>
+
+</html>
