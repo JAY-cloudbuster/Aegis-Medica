@@ -1,44 +1,5 @@
 
-4. **Open Frontend**
-Open `frontend/index.html` in your browser or use a local server:
-```bash
-cd frontend
-python -m http.server 8000
-```
 
-Then visit `http://localhost:8000`
-
-## 📁 Project Structure
-
-```
-secure-login-system/
-├── backend/
-│   ├── auth.js              # Authentication & Authorization endpoints
-│   ├── authz.js             # Authorization middleware
-│   ├── cryptoUtil.js        # AES encryption/decryption
-│   ├── signature.js         # Digital signature functions
-│   ├── keygen.js            # RSA key generation
-│   ├── qrUtil.js            # QR code generation
-│   ├── mailer.js            # Email OTP sending
-│   ├── db.js                # Database setup
-│   ├── server.js            # Express server
-│   └── users.db             # SQLite database
-├── frontend/
-│   ├── index.html           # Landing page
-│   ├── register.html        # Registration
-│   ├── login.html           # Login
-│   ├── otp.html             # OTP verification
-│   ├── verify-registration.html  # Email verification
-│   ├── dashboard.html       # User dashboard
-│   ├── secure.html          # Secure data access (Admin)
-│   ├── user-data.html       # User data access (Admin/Mod)
-│   ├── system-config.html   # System config (Admin)
-│   ├── admin.html           # Admin panel
-│   └── style.css            # Styling
-├── ACCESS_CONTROL_POLICY.md # Access control documentation
-├── SECURITY_DOCUMENTATION.md # Security risks & attacks
-└── README.md                # This file
-```
 
 ## 🔐 API Endpoints
 
