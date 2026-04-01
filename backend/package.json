@@ -1,0 +1,26 @@
+{
+  "name": "aegis-medica-backend",
+  "version": "1.0.0",
+  "description": "Cyber-secure backend for Aegis Medical — Node.js + Express + MongoDB",
+  "main": "server-mongo.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server-mongo.js",
+    "dev": "node server-mongo.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb-memory-server": "^10.4.0",
+    "mongoose": "^8.14.3",
+    "nodemailer": "^7.0.13",
+    "uuid": "^11.1.0",
+    "winston": "^3.17.0",
+    "xss": "^1.0.15"
+  }
+}
