@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, LogIn, Leaf, Lock, Heart, Users, UserCircle, Stethoscope } from 'lucide-react';
+import { ShieldCheck, LogIn, Leaf, Lock, Heart, Users, UserCircle, Stethoscope, Eye, EyeOff, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const demoRoles = [
@@ -14,6 +14,9 @@ export default function Login() {
     const { login, DEMO_MODE, MOCK_USERS } = useAuth();
     const [selectedRole, setSelectedRole] = useState('doctor');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [form, setForm] = useState({ username: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
     const btnRef = useRef(null);
 
     const handleRipple = (e) => {
@@ -30,7 +33,8 @@ export default function Login() {
         setTimeout(() => circle.remove(), 600);
     };
 
-    const handleLogin = () => {
+    // ── Demo mode login ──
+    const handleDemoLogin = () => {
         setLoading(true);
         setTimeout(() => {
             if (DEMO_MODE && MOCK_USERS) {
@@ -40,15 +44,129 @@ export default function Login() {
         }, 800);
     };
 
+    // ── Real backend login ──
+    const handleRealLogin = async (e) => {
+        e.preventDefault();
+        setError(''); setLoading(true);
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: form.username, password: form.password }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.error);
+            } else {
+                // Navigate to OTP page for MFA step 2
+                navigate('/otp', { state: { username: form.username } });
+            }
+        } catch {
+            setError('Network error — is the backend running?');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ═══════════════════════════════════════════
+    // DEMO MODE — Role selector
+    // ═══════════════════════════════════════════
+    if (DEMO_MODE) {
+        return (
+            <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4 grain">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#faf8f4] via-[#f0ece4] to-[#e8ebe3]" />
+                <div className="blob blob-1" />
+                <div className="blob blob-2" />
+                <div className="blob blob-3" />
+
+                <div className="w-full max-w-lg relative z-10">
+                    <div className="text-center mb-10 animate-fade-in-up">
+                        <div className="relative inline-block">
+                            <div className="w-20 h-20 bg-gradient-to-br from-[#617050] to-[#94a37e] rounded-[1.25rem] flex items-center justify-center shadow-xl shadow-green-900/10 animate-bounce-soft">
+                                <Leaf size={36} className="text-white/90 drop-shadow" />
+                            </div>
+                            <div className="absolute -inset-2 rounded-[1.5rem] border-2 border-[#b3bea3]/30 animate-pulse-soft" />
+                        </div>
+                        <h1 className="text-3xl font-extrabold text-[#3d3a35] mt-7 tracking-tight animate-fade-in delay-2">
+                            Welcome to <span className="text-gradient">Aegis</span>
+                        </h1>
+                        <p className="text-sm text-[#8a8478] mt-2 animate-fade-in delay-3">Your trusted healthcare companion</p>
+                    </div>
+
+                    <div className="flex justify-center mb-6 animate-fade-in delay-3">
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#f5f0e8] border border-[#e0d8cc] text-[#8a7a60] text-xs font-semibold">
+                            <Heart size={13} className="animate-breathe text-[#d4a24e]" />
+                            Explore Mode — Choose a role to browse
+                        </div>
+                    </div>
+
+                    <div className="glass rounded-[1.5rem] p-8 shadow-xl animate-fade-in-up delay-3">
+                        <h3 className="text-xs font-bold text-[#8a8478] uppercase tracking-widest mb-5 flex items-center gap-2">
+                            <Users size={14} className="text-[#94a37e]" />
+                            I want to enter as
+                        </h3>
+
+                        <div className="space-y-3 mb-7">
+                            {demoRoles.map((role, i) => {
+                                const isSelected = selectedRole === role.id;
+                                return (
+                                    <button key={role.id} onClick={() => setSelectedRole(role.id)}
+                                        className={`w-full p-4 rounded-2xl border-2 flex items-center gap-4 animate-fade-in-up active:scale-[0.98] ${isSelected ? `border-[#94a37e] bg-gradient-to-r from-[#f6f7f4] to-[#e8ebe3] shadow-lg shadow-green-100/40` : `border-[#e8e4dc] bg-white/50 hover:border-[#d1d7c7] hover:bg-[#faf8f4]`}`}
+                                        style={{ animationDelay: `${0.3 + i * 0.1}s` }}>
+                                        <span className="text-3xl">{role.emoji}</span>
+                                        <div className="text-left flex-1">
+                                            <p className={`font-bold text-sm ${isSelected ? 'text-[#4d5940]' : 'text-[#5a564e]'}`}>{role.label}</p>
+                                            <p className="text-xs text-[#a09888]">{role.desc}</p>
+                                        </div>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-[#7a8b66] bg-[#7a8b66]' : 'border-[#d1cdc4]'}`}>
+                                            {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <button ref={btnRef} onClick={(e) => { handleRipple(e); handleDemoLogin(); }} disabled={loading}
+                            className="btn-ripple w-full py-4 bg-gradient-to-r from-[#617050] to-[#7a8b66] text-white rounded-2xl font-bold text-sm shadow-xl shadow-green-900/10 disabled:opacity-50 flex items-center justify-center gap-2 hover:shadow-2xl hover:scale-[1.01] active:scale-[0.98] animate-fade-in delay-6">
+                            {loading ? (
+                                <div className="flex items-center gap-3">
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span>Entering...</span>
+                                </div>
+                            ) : (
+                                <><LogIn size={18} /> Enter as {demoRoles.find(r => r.id === selectedRole)?.label}</>
+                            )}
+                        </button>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-4 mt-8 animate-fade-in delay-7">
+                        {[
+                            { icon: Lock, label: 'Encrypted' },
+                            { icon: ShieldCheck, label: 'Secure' },
+                            { icon: Stethoscope, label: 'Medical' },
+                        ].map(b => (
+                            <div key={b.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f5f0e8]/80 text-xs text-[#8a8478] font-medium border border-[#e8e4dc] hover:border-[#d1d7c7] hover:text-[#617050] cursor-default">
+                                <b.icon size={12} />
+                                {b.label}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ═══════════════════════════════════════════
+    // REAL MODE — Username + Password login
+    // ═══════════════════════════════════════════
     return (
         <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4 grain">
-            {/* Warm background */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#faf8f4] via-[#f0ece4] to-[#e8ebe3]" />
             <div className="blob blob-1" />
             <div className="blob blob-2" />
             <div className="blob blob-3" />
 
-            <div className="w-full max-w-lg relative z-10">
+            <div className="w-full max-w-md relative z-10">
                 {/* Logo */}
                 <div className="text-center mb-10 animate-fade-in-up">
                     <div className="relative inline-block">
@@ -61,82 +179,74 @@ export default function Login() {
                         Welcome to <span className="text-gradient">Aegis</span>
                     </h1>
                     <p className="text-sm text-[#8a8478] mt-2 animate-fade-in delay-3">
-                        Your trusted healthcare companion
+                        Secure healthcare — sign in to continue
                     </p>
                 </div>
 
-                {/* Demo badge */}
-                <div className="flex justify-center mb-6 animate-fade-in delay-3">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#f5f0e8] border border-[#e0d8cc] text-[#8a7a60] text-xs font-semibold">
-                        <Heart size={13} className="animate-breathe text-[#d4a24e]" />
-                        Explore Mode — Choose a role to browse
-                    </div>
-                </div>
-
-                {/* Card */}
+                {/* Login Form */}
                 <div className="glass rounded-[1.5rem] p-8 shadow-xl animate-fade-in-up delay-3">
                     <h3 className="text-xs font-bold text-[#8a8478] uppercase tracking-widest mb-5 flex items-center gap-2">
-                        <Users size={14} className="text-[#94a37e]" />
-                        I want to enter as
+                        <Lock size={14} className="text-[#94a37e]" />
+                        Secure Sign In
                     </h3>
 
-                    <div className="space-y-3 mb-7">
-                        {demoRoles.map((role, i) => {
-                            const isSelected = selectedRole === role.id;
-                            return (
-                                <button
-                                    key={role.id}
-                                    onClick={() => setSelectedRole(role.id)}
-                                    className={`
-                    w-full p-4 rounded-2xl border-2 flex items-center gap-4 animate-fade-in-up active:scale-[0.98]
-                    ${isSelected
-                                            ? `border-[#94a37e] bg-gradient-to-r from-[#f6f7f4] to-[#e8ebe3] shadow-lg shadow-green-100/40`
-                                            : `border-[#e8e4dc] bg-white/50 hover:border-[#d1d7c7] hover:bg-[#faf8f4]`
-                                        }
-                  `}
-                                    style={{ animationDelay: `${0.3 + i * 0.1}s` }}
-                                >
-                                    <span className="text-3xl">{role.emoji}</span>
-                                    <div className="text-left flex-1">
-                                        <p className={`font-bold text-sm ${isSelected ? 'text-[#4d5940]' : 'text-[#5a564e]'}`}>{role.label}</p>
-                                        <p className="text-xs text-[#a09888]">{role.desc}</p>
-                                    </div>
-                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-[#7a8b66] bg-[#7a8b66]' : 'border-[#d1cdc4]'
-                                        }`}>
-                                        {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
-                                    </div>
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {/* Enter */}
-                    <button
-                        ref={btnRef}
-                        onClick={(e) => { handleRipple(e); handleLogin(); }}
-                        disabled={loading}
-                        className="btn-ripple w-full py-4 bg-gradient-to-r from-[#617050] to-[#7a8b66] text-white rounded-2xl font-bold text-sm shadow-xl shadow-green-900/10 disabled:opacity-50 flex items-center justify-center gap-2 hover:shadow-2xl hover:scale-[1.01] active:scale-[0.98] animate-fade-in delay-6"
-                    >
-                        {loading ? (
-                            <div className="flex items-center gap-3">
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                <span>Entering...</span>
+                    <form onSubmit={handleRealLogin} className="space-y-5">
+                        <div className="animate-fade-in delay-1">
+                            <label className="block text-sm font-semibold text-[#5a564e] mb-2">Username</label>
+                            <div className="relative group">
+                                <input type="text" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })}
+                                    className="w-full px-4 py-3.5 rounded-2xl border-2 border-[#e0d8cc] bg-white/60 input-glow outline-none text-sm font-medium group-hover:border-[#d1d7c7]"
+                                    placeholder="Enter your username" required autoComplete="username" />
+                                <User size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d1cdc4] group-hover:text-[#94a37e]" />
                             </div>
-                        ) : (
-                            <>
-                                <LogIn size={18} />
-                                Enter as {demoRoles.find(r => r.id === selectedRole)?.label}
-                            </>
+                        </div>
+
+                        <div className="animate-fade-in delay-2">
+                            <label className="block text-sm font-semibold text-[#5a564e] mb-2">Password</label>
+                            <div className="relative group">
+                                <input type={showPassword ? 'text' : 'password'} value={form.password}
+                                    onChange={e => setForm({ ...form, password: e.target.value })}
+                                    className="w-full px-4 py-3.5 rounded-2xl border-2 border-[#e0d8cc] bg-white/60 input-glow outline-none text-sm font-medium pr-12 group-hover:border-[#d1d7c7]"
+                                    placeholder="Enter your password" required autoComplete="current-password" />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d1cdc4] hover:text-[#617050] hover:scale-110">
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {error && (
+                            <div className="bg-red-50 text-[#d46a6a] text-sm rounded-2xl px-4 py-3.5 border border-red-100 animate-scale-in">
+                                {error}
+                            </div>
                         )}
-                    </button>
+
+                        <button ref={btnRef} type="submit" disabled={loading}
+                            onClick={handleRipple}
+                            className="btn-ripple w-full py-4 bg-gradient-to-r from-[#617050] to-[#7a8b66] text-white rounded-2xl font-bold text-sm shadow-xl shadow-green-900/10 disabled:opacity-50 flex items-center justify-center gap-2 hover:shadow-2xl hover:scale-[1.01] active:scale-[0.98] animate-fade-in delay-4">
+                            {loading ? (
+                                <div className="flex items-center gap-3">
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span>Authenticating...</span>
+                                </div>
+                            ) : (
+                                <><LogIn size={18} /> Sign In</>
+                            )}
+                        </button>
+                    </form>
+
+                    <p className="text-center text-sm text-[#8a8478] mt-6">
+                        Don't have an account?{' '}
+                        <Link to="/register" className="text-[#617050] font-bold hover:underline">Create one</Link>
+                    </p>
                 </div>
 
-                {/* Footer */}
+                {/* Footer badges */}
                 <div className="flex items-center justify-center gap-4 mt-8 animate-fade-in delay-7">
                     {[
-                        { icon: Lock, label: 'Encrypted' },
-                        { icon: ShieldCheck, label: 'Secure' },
-                        { icon: Stethoscope, label: 'Medical' },
+                        { icon: Lock, label: 'AES-256' },
+                        { icon: ShieldCheck, label: 'MFA' },
+                        { icon: Stethoscope, label: 'HIPAA-Ready' },
                     ].map(b => (
                         <div key={b.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f5f0e8]/80 text-xs text-[#8a8478] font-medium border border-[#e8e4dc] hover:border-[#d1d7c7] hover:text-[#617050] cursor-default">
                             <b.icon size={12} />
