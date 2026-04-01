@@ -2,8 +2,8 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-// ====== DEMO MODE: No backend needed ======
-const DEMO_MODE = true;
+// ====== DEMO MODE: Set to true for UI exploration without backend ======
+const DEMO_MODE = false;
 
 const MOCK_USERS = {
     admin: { _id: 'demo-admin', username: 'Dr. Admin', email: 'admin@aegis.med', role: 'admin', isVerified: true },
